@@ -18,6 +18,7 @@ class DefaultDict(dict):
     def __missing__(self, key):
         return "Unknown"
 
+
 def clean_filename(filename):
     # Remove file extension
     name, _ = os.path.splitext(filename)
@@ -28,9 +29,10 @@ def clean_filename(filename):
         movie_name = match.group(1).strip()
         movie_year = match.group(2)
         return f"{movie_name} ({movie_year})"  # Format as "Movie Name (Year)"
-    
+
     # Fallback if no match
     return name
+
 
 async def generate_caption(filename, directory, caption_template):
     file_path = os.path.join(directory, filename)
