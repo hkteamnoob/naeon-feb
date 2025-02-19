@@ -6,6 +6,7 @@ from asyncio.subprocess import PIPE
 
 from bot import LOGGER, cpu_no
 
+
 async def get_file_info(file):
     cmd = [
         "ffprobe",
@@ -34,16 +35,16 @@ async def get_file_info(file):
 
         # Process the filename to extract title and year
         def extract_title_year(filename):
-            parts = filename.split(' - ')
+            parts = filename.split(" - ")
             if len(parts) < 2:
                 return None
             possible_title_part = parts[1]
             # Use regex to find the title and year pattern
-            match = re.match(r'^(.+?\(\d{4}\))', possible_title_part)
+            match = re.match(r"^(.+?\(\d{4}\))", possible_title_part)
             if match:
                 return match.group(1).strip()
             # Fallback: search for any occurrence of (YYYY) in the part
-            year_match = re.search(r'\(\d{4}\)', possible_title_part)
+            year_match = re.search(r"\(\d{4}\)", possible_title_part)
             if year_match:
                 end = year_match.end()
                 return possible_title_part[:end].strip()
@@ -53,12 +54,14 @@ async def get_file_info(file):
         if title_year:
             LOGGER.info(f"Extracted title and year: {title_year}")
             return title_year
-        else:
-            LOGGER.warning(f"Could not extract title and year from filename: {file_name}")
-            return None
+        LOGGER.warning(
+            f"Could not extract title and year from filename: {file_name}"
+        )
+        return None
     except json.JSONDecodeError:
         LOGGER.error(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
         return None
+
 
 async def get_streams(file):
     cmd = [
