@@ -21,7 +21,7 @@ async def get_file_info(file):
     stdout, stderr = await process.communicate()
 
     if process.returncode != 0:
-        print(f"Error getting file info: {stderr.decode().strip()}")
+        LOGGER.error(f"Error getting file info: {stderr.decode().strip()}")
         return None
 
     try:
@@ -30,11 +30,11 @@ async def get_file_info(file):
 
         # Extract and print the filename
         file_name = os.path.basename(format_info.get("filename", file))
-        print(f"Extracted filename: {file_name}")  # Print statement for inspection
+        LOGGER.info(f"Extracted filename: {file_name}")  # Print statement for inspection
 
         return file_name
     except json.JSONDecodeError:
-        print(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
+        LOGGER.error(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
         return None
 
 
@@ -112,7 +112,10 @@ async def get_metadata_cmd(file_path, key):
         return None, None
 
     titlename = await get_file_info(file_path)
-    print(f"Title Name: {titlename}")
+    if titlename:
+        LOGGER.info(f"Title Name: {titlename}")
+    else:
+        LOGGER.warning("Failed to extract title name.")
 
     languages = {
         stream["index"]: stream["tags"]["language"]
