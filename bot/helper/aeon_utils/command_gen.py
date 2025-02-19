@@ -57,6 +57,7 @@ async def get_watermark_cmd(file, key):
 
     return cmd, temp_file
 
+
 LANGUAGE_MAP = {
     "eng": "English",
     "tam": "Tamil",
@@ -68,6 +69,7 @@ LANGUAGE_MAP = {
     "ben": "Bengali",
     "mar": "Marathi",
 }
+
 
 async def get_metadata_cmd(file_path, key):
     """Processes a single file to update metadata."""
