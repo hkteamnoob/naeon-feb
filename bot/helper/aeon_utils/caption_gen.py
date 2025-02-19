@@ -18,6 +18,19 @@ class DefaultDict(dict):
     def __missing__(self, key):
         return "Unknown"
 
+def clean_filename(filename):
+    # Remove file extension
+    name, _ = os.path.splitext(filename)
+
+    # Match movie name and year (capture text before the year)
+    match = re.search(r"(.+?)\s+(\d{4})\b", name)  # Extract movie name & year
+    if match:
+        movie_name = match.group(1).strip()
+        movie_year = match.group(2)
+        return f"{movie_name} ({movie_year})"  # Format as "Movie Name (Year)"
+    
+    # Fallback if no match
+    return name
 
 async def generate_caption(filename, directory, caption_template):
     file_path = os.path.join(directory, filename)
@@ -61,7 +74,7 @@ async def generate_caption(filename, directory, caption_template):
     file_md5_hash = calculate_md5(file_path)
 
     caption_data = DefaultDict(
-        filename=filename,
+        filename=clean_filename(filename),
         size=get_readable_file_size(await aiopath.getsize(file_path)),
         duration=get_readable_time(video_duration, True),
         quality=video_quality,
