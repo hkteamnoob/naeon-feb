@@ -5,6 +5,37 @@ from asyncio.subprocess import PIPE
 from bot import LOGGER, cpu_no
 
 
+async def get_file_info(file):
+    cmd = [
+        "ffprobe",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-print_format",
+        "json",
+        "-show_format",  # Get filename and general metadata
+        file,
+    ]
+    process = await create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = await process.communicate()
+
+    if process.returncode != 0:
+        print(f"Error getting file info: {stderr.decode().strip()}")
+        return None, None
+
+    try:
+        data = json.loads(stdout)
+        format_info = data.get("format", {})
+
+        # Extract and print the filename
+        file_name = os.path.basename(format_info.get("filename", file))
+        print(f"Extracted filename: {file_name}")  # Print statement for inspection
+
+        return file_name
+    except json.JSONDecodeError:
+        print(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
+        return None
+
 async def get_streams(file):
     cmd = [
         "ffprobe",
@@ -75,6 +106,7 @@ async def get_metadata_cmd(file_path, key):
     """Processes a single file to update metadata."""
     temp_file = f"{file_path}.temp.mkv"
     streams = await get_streams(file_path)
+    names = await get_file_info(file_path) 
     if not streams:
         return None, None
 
