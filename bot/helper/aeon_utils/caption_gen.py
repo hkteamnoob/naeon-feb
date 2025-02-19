@@ -1,6 +1,5 @@
 import json
 import os
-import re
 from contextlib import suppress
 from hashlib import md5
 
