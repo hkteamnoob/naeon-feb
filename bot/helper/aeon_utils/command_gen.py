@@ -55,7 +55,7 @@ async def get_file_info(file):
             LOGGER.info(f"Extracted title and year: {title_year}")
             return title_year
         LOGGER.warning(
-            f"Could not extract title and year from filename: {file_name}"
+            f"Could not extract title and year from filename: {file_name}",
         )
         return None
     except json.JSONDecodeError:
