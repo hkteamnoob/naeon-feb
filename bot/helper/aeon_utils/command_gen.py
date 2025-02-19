@@ -108,7 +108,7 @@ async def get_metadata_cmd(file_path, key):
     """Processes a single file to update metadata."""
     temp_file = f"{file_path}.temp.mkv"
     streams = await get_streams(file_path)
-    titlename = await get_file_info(file_path)
+    await get_file_info(file_path)
     if not streams:
         return None, None
 
