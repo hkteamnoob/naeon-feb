@@ -30,7 +30,9 @@ async def get_file_info(file):
 
         # Extract and print the filename
         file_name = os.path.basename(format_info.get("filename", file))
-        LOGGER.info(f"Extracted filename: {file_name}")  # Print statement for inspection
+        LOGGER.info(
+            f"Extracted filename: {file_name}"
+        )  # Print statement for inspection
 
         return file_name
     except json.JSONDecodeError:
