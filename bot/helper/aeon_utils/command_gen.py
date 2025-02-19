@@ -162,9 +162,9 @@ async def get_metadata_cmd(file_path, key):
         "-c",
         "copy",
         "-metadata:s:v:0",
-        f"title={key}",
+        f"title={titlename}-{key}",
         "-metadata",
-        f"title={key}",
+        f"title={titlename}-{key}",
     ]
 
     audio_index = 0
