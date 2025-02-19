@@ -36,6 +36,7 @@ async def get_file_info(file):
         print(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
         return None
 
+
 async def get_streams(file):
     cmd = [
         "ffprobe",
@@ -106,7 +107,7 @@ async def get_metadata_cmd(file_path, key):
     """Processes a single file to update metadata."""
     temp_file = f"{file_path}.temp.mkv"
     streams = await get_streams(file_path)
-    names = await get_file_info(file_path) 
+    await get_file_info(file_path)
     if not streams:
         return None, None
 
@@ -159,7 +160,8 @@ async def get_metadata_cmd(file_path, key):
             # Convert language code to full name
             lang_code = languages.get(stream_index, "")
             lang_name = LANGUAGE_MAP.get(
-                lang_code, lang_code
+                lang_code,
+                lang_code,
             ).capitalize()  # Default to code if not in map
             title_value = (
                 f"{lang_name}-{key}" if lang_name else key
@@ -171,7 +173,7 @@ async def get_metadata_cmd(file_path, key):
                     f"0:{stream_index}",
                     f"-metadata:s:a:{audio_index}",
                     f"title={title_value}",
-                ]
+                ],
             )
             if lang_code:
                 cmd.extend([f"-metadata:s:a:{audio_index}", f"language={lang_code}"])
