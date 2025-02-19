@@ -5,7 +5,6 @@ from asyncio.subprocess import PIPE
 
 from bot import LOGGER, cpu_no
 
-
 async def get_file_info(file):
     cmd = [
         "ffprobe",
@@ -14,31 +13,37 @@ async def get_file_info(file):
         "error",
         "-print_format",
         "json",
-        "-show_format",  # Get filename and general metadata
+        "-show_format",
         file,
     ]
     process = await create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = await process.communicate()
 
     if process.returncode != 0:
-        LOGGER.error(f"Error getting file info: {stderr.decode().strip()}")
+        print(f"Error getting file info: {stderr.decode().strip()}")
         return None
 
     try:
         data = json.loads(stdout)
         format_info = data.get("format", {})
 
-        # Extract and print the filename
+        # Extract full filename
         file_name = os.path.basename(format_info.get("filename", file))
-        LOGGER.info(
-            f"Extracted filename: {file_name}"
-        )  # Print statement for inspection
+        print(f"Extracted filename: {file_name}")  # Debugging print
 
-        return file_name
+        # Use regex to extract "Movie Name (Year)"
+        match = re.search(r"([\w\s.-]+)\s*(\d{4})", file_name)
+        if match:
+            clean_title = f"{match.group(1).strip()} ({match.group(2)})"
+        else:
+            clean_title = file_name  # Fallback if pattern isn't found
+
+        print(f"Expected Title Name: {clean_title}")  # Debugging print
+        return clean_title
+
     except json.JSONDecodeError:
-        LOGGER.error(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
-        return None
-
+        print(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
+        return None 
 
 async def get_streams(file):
     cmd = [
