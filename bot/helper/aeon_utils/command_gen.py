@@ -22,7 +22,7 @@ async def get_file_info(file):
 
     if process.returncode != 0:
         print(f"Error getting file info: {stderr.decode().strip()}")
-        return None, None
+        return None
 
     try:
         data = json.loads(stdout)
