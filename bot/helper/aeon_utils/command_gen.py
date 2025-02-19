@@ -5,6 +5,7 @@ from asyncio.subprocess import PIPE
 
 from bot import LOGGER, cpu_no
 
+
 async def get_file_info(file):
     cmd = [
         "ffprobe",
@@ -43,7 +44,8 @@ async def get_file_info(file):
 
     except json.JSONDecodeError:
         print(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
-        return None 
+        return None
+
 
 async def get_streams(file):
     cmd = [
