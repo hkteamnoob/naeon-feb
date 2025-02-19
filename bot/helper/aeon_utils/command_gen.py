@@ -126,14 +126,25 @@ async def get_metadata_cmd(file_path, key):
         elif stream_type == "audio":
             # Convert language code to full name
             lang_code = languages.get(stream_index, "")
-            lang_name = LANGUAGE_MAP.get(lang_code, lang_code).capitalize()  # Default to code if not in map
-            title_value = f"{lang_name}-{key}" if lang_name else key  # Ensure formatting is correct
-            
-            cmd.extend(["-map", f"0:{stream_index}", f"-metadata:s:a:{audio_index}", f"title={title_value}"])
+            lang_name = LANGUAGE_MAP.get(
+                lang_code, lang_code
+            ).capitalize()  # Default to code if not in map
+            title_value = (
+                f"{lang_name}-{key}" if lang_name else key
+            )  # Ensure formatting is correct
+
+            cmd.extend(
+                [
+                    "-map",
+                    f"0:{stream_index}",
+                    f"-metadata:s:a:{audio_index}",
+                    f"title={title_value}",
+                ]
+            )
             if lang_code:
                 cmd.extend([f"-metadata:s:a:{audio_index}", f"language={lang_code}"])
             audio_index += 1
-            
+
         elif stream_type == "subtitle":
             codec_name = stream.get("codec_name", "unknown")
             if codec_name in ["webvtt", "unknown"]:
