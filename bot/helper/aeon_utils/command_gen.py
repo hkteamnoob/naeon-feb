@@ -6,7 +6,6 @@ from asyncio.subprocess import PIPE
 
 from bot import LOGGER, cpu_no
 
-
 async def get_file_info(file):
     cmd = [
         "ffprobe",
@@ -15,38 +14,51 @@ async def get_file_info(file):
         "error",
         "-print_format",
         "json",
-        "-show_format",
+        "-show_format",  # Get filename and general metadata
         file,
     ]
     process = await create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = await process.communicate()
 
     if process.returncode != 0:
-        print(f"Error getting file info: {stderr.decode().strip()}")
+        LOGGER.error(f"Error getting file info: {stderr.decode().strip()}")
         return None
 
     try:
         data = json.loads(stdout)
         format_info = data.get("format", {})
 
-        # Extract full filename
+        # Extract filename
         file_name = os.path.basename(format_info.get("filename", file))
-        print(f"Extracted filename: {file_name}")  # Debugging print
+        LOGGER.info(f"Extracted filename: {file_name}")
 
-        # Use regex to extract "Movie Name (Year)"
-        match = re.search(r"([\w\s.-]+)\s*(\d{4})", file_name)
-        if match:
-            clean_title = f"{match.group(1).strip()} ({match.group(2)})"
+        # Process the filename to extract title and year
+        def extract_title_year(filename):
+            parts = filename.split(' - ')
+            if len(parts) < 2:
+                return None
+            possible_title_part = parts[1]
+            # Use regex to find the title and year pattern
+            match = re.match(r'^(.+?\(\d{4}\))', possible_title_part)
+            if match:
+                return match.group(1).strip()
+            # Fallback: search for any occurrence of (YYYY) in the part
+            year_match = re.search(r'\(\d{4}\)', possible_title_part)
+            if year_match:
+                end = year_match.end()
+                return possible_title_part[:end].strip()
+            return None
+
+        title_year = extract_title_year(file_name)
+        if title_year:
+            LOGGER.info(f"Extracted title and year: {title_year}")
+            return title_year
         else:
-            clean_title = file_name  # Fallback if pattern isn't found
-
-        print(f"Expected Title Name: {clean_title}")  # Debugging print
-        return clean_title
-
+            LOGGER.warning(f"Could not extract title and year from filename: {file_name}")
+            return None
     except json.JSONDecodeError:
-        print(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
+        LOGGER.error(f"Invalid JSON output from ffprobe: {stdout.decode().strip()}")
         return None
-
 
 async def get_streams(file):
     cmd = [
