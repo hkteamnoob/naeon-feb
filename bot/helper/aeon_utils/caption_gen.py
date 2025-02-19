@@ -72,21 +72,22 @@ async def generate_caption(filename, directory, caption_template):
 
     return caption_template.format_map(caption_data)
 
-
 def get_video_quality(height):
-    if height:
-        quality_map = {
-            480: "480p",
-            540: "540p",
-            720: "720p",
-            1080: "1080p",
-            2160: "2160p",
-            4320: "4320p",
-            8640: "8640p",
-        }
-        for threshold, quality in sorted(quality_map.items()):
-            if int(height) <= threshold:
-                return quality
+    quality_map = {
+        272: "LQ/360p",
+        360: "SD/480p",
+        540: "HD/720p",
+        799: "HD/720p",  # Anything below 800px is still 720p
+        1080: "FHD/1080p",  # Includes 800px cropped 1080p videos
+        2160: "QHD/2160p",
+        4320: "UHD/4320p",
+        8640: "FUHD/8640p",
+    }
+
+    for threshold, quality in sorted(quality_map.items()):
+        if height and int(height) <= threshold:
+            return quality
+
     return "Unknown"
 
 
