@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from contextlib import suppress
 from hashlib import md5
 
@@ -18,6 +19,8 @@ class DefaultDict(dict):
     def __missing__(self, key):
         return "Unknown"
 
+import re
+import os
 
 def clean_filename(filename):
     # Remove file extension
@@ -29,11 +32,11 @@ def clean_filename(filename):
         movie_name = match.group(1).strip()
         movie_year = match.group(2)
         return f"{movie_name} ({movie_year})"  # Format as "Movie Name (Year)"
-
+    
     # Fallback if no match
     return name
 
-
+    
 async def generate_caption(filename, directory, caption_template):
     file_path = os.path.join(directory, filename)
 
@@ -57,7 +60,7 @@ async def generate_caption(filename, directory, caption_template):
     subtitle_metadata = [track for track in track_data if track["@type"] == "Text"]
 
     video_duration = round(float(video_metadata.get("Duration", 0)))
-    video_quality = get_video_quality(video_metadata.get("Height", None))
+    video_quality = get_video_quality(video_metadata.get("Height"))
 
     audio_languages = ", ".join(
         parse_audio_language("", audio)
@@ -71,12 +74,12 @@ async def generate_caption(filename, directory, caption_template):
     )
 
     audio_languages = audio_languages if audio_languages else "Unknown"
-    subtitle_languages = subtitle_languages if subtitle_languages else "Unknown"
+    subtitle_languages = subtitle_languages if subtitle_languages else "-"
     video_quality = video_quality if video_quality else "Unknown"
     file_md5_hash = calculate_md5(file_path)
 
     caption_data = DefaultDict(
-        filename=clean_filename(filename),
+        filename=clean_filename(filename),  # Processed filename
         size=get_readable_file_size(await aiopath.getsize(file_path)),
         duration=get_readable_time(video_duration, True),
         quality=video_quality,
@@ -105,6 +108,7 @@ def get_video_quality(height):
             return quality
 
     return "Unknown"
+
 
 
 def parse_audio_language(existing_languages, audio_stream):
