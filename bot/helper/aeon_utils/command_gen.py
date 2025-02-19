@@ -111,8 +111,7 @@ async def get_metadata_cmd(file_path, key):
     if not streams:
         return None, None
 
-
-    titlename = await get_file_info(file_path) 
+    titlename = await get_file_info(file_path)
     print(f"Title Name: {titlename}")
 
     languages = {
